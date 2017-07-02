@@ -24,9 +24,12 @@
 *.lai
 *.la
 *.a
-*.lib
+# *.lib since mbed cli need .lib to store information about libraries and dependencies.
 
 # Executables
 *.exe
 *.out
 *.app
+
+# Exclude for mbed relevant items
+*.hg
