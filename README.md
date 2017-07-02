@@ -24,5 +24,5 @@
 * A client named MBED-OS-EXAMPLE-WAKAAMA will display in the list.
 * Feel free to click :)
 
-![](http://github.com/tz-arm/mbed-os-example-wakaama/raw/master/image/mbed-os-example-wakaama-image-01.jpg)
-![](http://github.com/tz-arm/mbed-os-example-wakaama/raw/master/image/mbed-os-example-wakaama-image-02.jpg)
+![](https://github.com/tz-arm/mbed-os-example-wakaama/raw/master/image/mbed-os-example-wakaama-image-01.jpg)
+![](https://github.com/tz-arm/mbed-os-example-wakaama/raw/master/image/mbed-os-example-wakaama-image-02.jpg)
