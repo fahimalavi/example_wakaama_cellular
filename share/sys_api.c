@@ -23,13 +23,13 @@
 
 
 #ifdef MBED_OS_EXAMPLE_WAKAAMA
-int gettimeofday(struct timeval* t, void* timezone)
-{       
-    t->tv_sec = time(NULL);
-    t->tv_usec = 0;  
-    
-    return 0;                       /* 1sec precision only */ 
-}
+//int gettimeofday(struct timeval* t, void* timezone)
+//{
+//    t->tv_sec = time(NULL);
+//    t->tv_usec = 0;
+//
+//    return 0;                       /* 1sec precision only */
+//}
 
 char * strdup(const char *s)  
 {  
@@ -65,7 +65,20 @@ int lwm2m_strncmp(const char * s1,
 {
     return strncmp(s1, s2, n);
 }
+#ifdef LWM2M_EMBEDDED_MODE
 
+time_t lwm2m_gettime(void)
+{
+    time_t t = time(NULL);
+
+    printf("time is %d", t);
+
+    //t.tv_sec = t;
+
+    //return t.tv_sec;
+    return t;
+}
+#else
 time_t lwm2m_gettime(void)
 {
     struct timeval tv;
@@ -77,6 +90,7 @@ time_t lwm2m_gettime(void)
 
     return tv.tv_sec;
 }
+#endif
 
 void lwm2m_printf(const char * format, ...)
 {

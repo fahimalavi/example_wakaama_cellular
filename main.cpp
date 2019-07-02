@@ -1,7 +1,13 @@
 #include "mbed.h"
-#include "C12832.h"
-#include "LM75B.h"
+#include "UbloxATCellularInterface.h"
 #include "EthernetInterface.h"
+
+#define APN         NULL
+#define USERNAME    NULL
+#define PASSWORD    NULL
+#define PIN "0000"
+
+UbloxATCellularInterface *interface;
 
 extern "C" {
     #include "liblwm2m.h"
@@ -17,12 +23,12 @@ extern "C" {
 #ifdef ENABLE_RGB_LED
 lwm2m_object_t * get_object_rgb_led(void);
 #endif
-lwm2m_object_t * get_object_temperature(void);
+//lwm2m_object_t * get_object_temperature(void);
 
 //Global definitions
-#define ENDPOINT_NAME "MBED-OS-EXAMPLE-WAKAAMA"
+#define ENDPOINT_NAME "HappyFace"
 //Connect to the Leshan test server as default: http://leshan.eclipse.org
-#define LESHAN_SERVER "5.39.83.206"     
+#define LESHAN_SERVER "23.97.187.154"
 #define LESHAN_PORT 5683
 #define UDP_TIMEOUT 60000
 #define UDP_PORT 5683
@@ -30,14 +36,14 @@ lwm2m_object_t * get_object_temperature(void);
 #ifdef ENABLE_RGB_LED
 #define DEVICE_OBJ_NUM 5
 #else
-#define DEVICE_OBJ_NUM 4
+#define DEVICE_OBJ_NUM 3
 #endif
 #define LOCAL_PORT 5683
 
 // LCD 128X32
-C12832 lcd(p5, p7, p6, p8, p11);
+//C12832 lcd(p5, p7, p6, p8, p11);
 // Sensor of temperature
-LM75B sensor_temp(p28,p27);
+//LM75B sensor_temp(p28,p27);
 // Network interface
 EthernetInterface eth;
 // UDP Socket
@@ -175,7 +181,7 @@ void debug_dump(uint8_t * buffer, size_t length)
     }   
     printf("\n--------------------------\n"); 
 }
-void test_tcp(EthernetInterface eth)
+/*void test_tcp(EthernetInterface eth)
 {
     TCPSocket tcp;    
     tcp.open(&eth);
@@ -202,7 +208,7 @@ void test_tcp(EthernetInterface eth)
     lcd.cls();
     // Close the socket to return its memory and bring down the network interface
     tcp.close();   
-}
+}*/
 
 
 int init_network()
@@ -210,15 +216,15 @@ int init_network()
     int ret = 0;
 
     //try to connect and get ip via DHCP.
-    lcd.locate(0,10);
-    lcd.printf("obtaining ip address...\n");
+//    lcd.locate(0,10);
+//    lcd.printf("obtaining ip address...\n");
     ret = eth.connect();
     if(ret!=0){
-        lcd.printf("DHCP Error - No IP");
+//        lcd.printf("DHCP Error - No IP");
         return ret;
     }
-    lcd.printf("IP is %s\n", eth.get_ip_address());
-    //wait(2.0);
+//    lcd.printf("IP is %s\n", eth.get_ip_address());
+    wait(2.0);
     
     //test code which only used to verify the connect functinon
     //test_tcp(eth);
@@ -231,7 +237,70 @@ int init_network()
     return ret;    
 }
 
-int init_display()
+#define MBED_CONF_APP_RAT_TYPE "2G"
+
+void set_rat(UbloxATCellularInterface* interface)
+{
+    int selected, preferred, second_preferred;
+
+
+    printf("Setting modem RAT to %s ...\n", MBED_CONF_APP_RAT_TYPE);
+    if ( (interface->is_registered_csd() || interface->is_registered_psd() || interface->is_registered_eps()) ) {
+        printf("De-registering...\n\n");
+        interface->nwk_deregistration();
+    }
+
+    if (strcmp(MBED_CONF_APP_RAT_TYPE, "2G") == 0) {
+        if (interface->set_modem_rat(UbloxATCellularInterface::GPRS_EGPRS)) {
+            printf("RAT configured\n");
+        }
+    } else if (strcmp(MBED_CONF_APP_RAT_TYPE, "M1") == 0) {
+        if (interface->set_modem_rat(UbloxATCellularInterface::LTE_CATM1)) {
+            printf("RAT configured\n");
+        }
+    } else if (strcmp(MBED_CONF_APP_RAT_TYPE, "NB1") == 0) {
+        if (interface->set_modem_rat(UbloxATCellularInterface::LTE_CATNB1)) {
+            printf("RAT configured\n");
+        }
+    } else {
+        printf("Please select correct RAT!\n");
+    }
+
+    if (interface->get_modem_rat(&selected, &preferred, &second_preferred)) {
+        printf("selected RAT: %d\npreferred RAT: %d\nsecond_preferred RAT: %d\n", selected, preferred, second_preferred);
+    }
+
+    printf("\nRebooting modem for settings to take effect...\n");
+    if (interface->reboot_modem()) {
+        printf("Reboot successful\n");
+    }
+
+    printf("Performing registration, please wait...\n");
+    for (int x = 0; interface->connect(PIN) != 0; x++) {
+        if (x > 0) {
+            printf("Retrying (have you checked that an antenna is plugged in and your APN is correct?)...\n");
+        }
+    }
+}
+
+int init_cellular_network()
+{
+    int ret = 0;
+
+    interface->set_credentials(APN, USERNAME, PASSWORD);
+
+    interface->init(PIN); //Power up and initialize the modem
+    set_rat(interface); //set RAT to user specified value and perform network registration
+
+    udp.open(interface);
+
+    udp.bind(UDP_PORT);
+
+    return ret;
+}
+
+
+/*int init_display()
 {
     int ret = 0;
     //Bootup and display initial information
@@ -243,7 +312,7 @@ int init_display()
     //wait(2.0); 
     
     return ret; 
-}
+}*/
 
 
 coap_status_t lwm2m_buffer_send(void * sessionH,uint8_t * buffer,size_t length,void * userdata)
@@ -264,11 +333,11 @@ coap_status_t lwm2m_buffer_send(void * sessionH,uint8_t * buffer,size_t length,v
     return COAP_NO_ERROR;
 }
 
-void get_temperature(float *temp)
+/*void get_temperature(float *temp)
 {
     *temp = sensor_temp.read();
     printf("SYSTEM TEMP: %.3f",*temp);
-}
+}*/
 
 int main() 
 {
@@ -287,10 +356,16 @@ int main()
     SocketAddress client;
 
     //Init display modual via LCD
-    init_display();
+    //init_display();
     //Init the network modual via ethernet and udp socket
-    init_network(); 
-    
+    interface = new UbloxATCellularInterface();
+
+    set_time(1562052269);
+
+    //init_network();
+
+    init_cellular_network();
+
     /*
      * Now the main function fill an array with each object, this list will be later passed to liblwm2m.
      * Those functions are located in their respective object file.
@@ -318,12 +393,12 @@ int main()
     }
 
 
-    objArray[3] = get_object_temperature();
+    /*objArray[3] = get_object_temperature();
     if (NULL == objArray[3])
     {
         fprintf(stderr, "Failed to create temperature object\r\n");
         return -1;
-    }
+    }*/
     
 #ifdef ENABLE_RGB_LED
     objArray[4] = get_object_rgb_led();

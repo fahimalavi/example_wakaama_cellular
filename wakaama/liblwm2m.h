@@ -140,7 +140,8 @@ int lwm2m_strncmp(const char * s1, const char * s2, size_t n);
 // call to it.
 // In case of error, this must return a negative value.
 // Per POSIX specifications, time_t is a signed integer.
-time_t lwm2m_gettime(void);
+
+int lwm2m_gettimeofday(struct timeval *tv, void *p);
 
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
