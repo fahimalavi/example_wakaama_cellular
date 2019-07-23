@@ -1,5 +1,5 @@
 # example_wakaama_Cellular
-    Example for Eclipse Wakaama client integration on mbed-os platform.
+    Example for Eclipse Wakaama client integration on mbed-os platform. (Forked from https://github.com/tz-arm/mbed-os-example-wakaama)
 
 ## Integration Environment:
 * hardware
