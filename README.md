@@ -1,28 +1,18 @@
-# mbed-os-example-wakaama
+# example_wakaama_Cellular
     Example for Eclipse Wakaama client integration on mbed-os platform.
 
 ## Integration Environment:
 * hardware
-    * [NXP LPC1768](https://developer.mbed.org/platforms/mbed-LPC1768/)
-    * [MBED APPLICATION BOARD](https://developer.mbed.org/cookbook/mbed-application-board)
-        * LM75B
-        * C12832
+    * [C030-R412M](https://os.mbed.com/platforms/ublox-C030-R412M/)
 * software 
-    * [mbed-os V5.4](https://github.com/ARMmbed/mbed-os)
+    * [mbed-os V5.12.4](https://github.com/ARMmbed/mbed-os)
     * [wakaama client](https://github.com/eclipse/wakaama)
 
-## how to run:
-### mbed online compiler:
-* Select platform to mbed LPC1768
-* Import code via url
-    * github: https://github.com/tz-arm/mbed-os-example-wakaama
-    * mbed developer: https://developer.mbed.org/users/terencez/code/mbed-os-example-wakaama/
-* Plugin hardware platform to you computer: LPC1768 + MBED APPLICATION BOARD
-* Compile and download image to device
-* Connect device to ethernet and reboot，some message come to LCD
-* Open [Leshan Server Demo](http://leshan.eclipse.org/#/clients) via browser
-* A client named MBED-OS-EXAMPLE-WAKAAMA will display in the list.
-* Feel free to click :)
-
-![](https://github.com/tz-arm/mbed-os-example-wakaama/raw/master/image/mbed-os-example-wakaama-image-01.jpg)
-![](https://github.com/tz-arm/mbed-os-example-wakaama/raw/master/image/mbed-os-example-wakaama-image-02.jpg)
+## how to Build:
+Download mbed-cli
+    * mbed config root .
+    * mbed deploy
+    * mbed compile -t ARM -m UBLOX_C030_R412M 
+### How to run:
+* Drag and drop .bin (The board provides simple USB drag-ndrop programming and ST-Link debug interface for the Host microcontroller.)
+* Open [Leshan Server Demo](https://leshan.eclipseprojects.io/#/clients) via browser
